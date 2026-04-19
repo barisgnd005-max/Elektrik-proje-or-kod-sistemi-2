@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elektrik Panosu — Deneme proje-1</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0c0f;--panel:#111418;--border:#1e2530;--yellow:#f5c518;--orange:#e07b39;--red:#e03939;--green:#39c96e;--blue:#4a9eff;--text:#c8d0dc;--muted:#5a6478;--font-display:'Bebas Neue',sans-serif;--font-mono:'IBM Plex Mono',monospace;--font-body:'IBM Plex Sans',sans-serif;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-height:100vh;overflow-x:hidden;}
+header{background:var(--panel);border-bottom:2px solid var(--yellow);padding:18px 20px 14px;position:sticky;top:0;z-index:100;}
+.header-top{display:flex;align-items:center;gap:14px;}
+.bolt{font-size:28px;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.header-title{flex:1;}
+.header-title h1{font-family:var(--font-display);font-size:22px;letter-spacing:2px;color:var(--yellow);line-height:1;}
+.header-title p{font-family:var(--font-mono);font-size:11px;color:var(--muted);margin-top:3px;}
+.status-dot{width:10px;height:10px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:blink 1.8s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.tabs{display:flex;margin-top:14px;gap:4px;}
+.tab{flex:1;padding:8px 4px;border:1px solid var(--border);border-radius:6px 6px 0 0;background:transparent;color:var(--muted);font-family:var(--font-mono);font-size:12px;font-weight:600;letter-spacing:1px;cursor:pointer;text-transform:uppercase;transition:all .2s;text-align:center;}
+.tab.active-musteri{background:rgba(245,197,24,.08);border-color:var(--yellow);color:var(--yellow);}
+.tab.active-usta{background:rgba(74,158,255,.08);border-color:var(--blue);color:var(--blue);}
+.content{padding:16px;display:none;animation:fadeIn .25s ease;}
+.content.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:14px;}
+.card-title{font-family:var(--font-display);font-size:16px;letter-spacing:1.5px;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.sigorta-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.sigorta{border:1px solid var(--border);border-radius:8px;padding:12px 10px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;}
+.sigorta::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.sigorta.normal::before{background:var(--green);}
+.sigorta.dikkat::before{background:var(--yellow);}
+.sigorta.tehlike::before{background:var(--red);}
+.sigorta:hover{border-color:var(--muted);transform:translateY(-1px);}
+.sigorta-no{font-family:var(--font-mono);font-size:10px;color:var(--muted);margin-bottom:4px;}
+.sigorta-ad{font-weight:600;font-size:13px;margin-bottom:6px;line-height:1.3;}
+.sigorta-meta{display:flex;justify-content:space-between;align-items:center;}
+.sigorta-amper{font-family:var(--font-mono);font-size:13px;color:var(--yellow);font-weight:600;}
+.sigorta-durum{font-size:10px;padding:2px 7px;border-radius:20px;font-weight:600;}
+.durum-normal{background:rgba(57,201,110,.15);color:var(--green);}
+.durum-dikkat{background:rgba(245,197,24,.15);color:var(--yellow);}
+.durum-tehlike{background:rgba(224,57,57,.15);color:var(--red);}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:200;padding:20px;align-items:flex-end;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--panel);border:1px solid var(--border);border-radius:16px 16px 12px 12px;padding:20px;width:100%;max-width:480px;margin:0 auto;animation:slideUp .25s ease;}
+@keyframes slideUp{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.modal-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;}
+.modal-close{background:var(--border);border:none;color:var(--text);font-size:16px;width:30px;height:30px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.tip-kutusu{background:rgba(245,197,24,.06);border-left:3px solid var(--yellow);border-radius:0 6px 6px 0;padding:10px 12px;margin-top:10px;font-size:13px;line-height:1.6;color:var(--text);}
+.tip-kutusu+.tip-kutusu{margin-top:8px;border-color:var(--blue);background:rgba(74,158,255,.06);}
+.devre{font-family:var(--font-mono);font-size:11px;line-height:2;background:#080a0d;border-radius:8px;padding:14px;overflow-x:auto;color:var(--text);}
+.hat-faz{color:var(--red)}.hat-sig{color:var(--yellow)}.hat-num{color:var(--muted)}
+.bilgi-satir{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px;align-items:center;}
+.bilgi-satir:last-child{border-bottom:none;}
+.bilgi-label{color:var(--muted);}
+.bilgi-val{font-family:var(--font-mono);font-weight:600;}
+.uyari{display:flex;gap:10px;align-items:flex-start;background:rgba(224,57,57,.08);border:1px solid rgba(224,57,57,.3);border-radius:8px;padding:12px;margin-bottom:14px;font-size:13px;line-height:1.5;}
+.uyari-ikon{font-size:20px;flex-shrink:0;}
+.checklist-item{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;align-items:flex-start;cursor:pointer;}
+.checklist-item:last-child{border-bottom:none;}
+.check-box{width:18px;height:18px;border:2px solid var(--muted);border-radius:4px;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all .15s;}
+.checklist-item.checked .check-box{background:var(--blue);border-color:var(--blue);color:#fff;}
+.checklist-item.checked .check-text{text-decoration:line-through;color:var(--muted);}
+.ariza-btn{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:8px;cursor:pointer;width:100%;text-align:left;color:var(--text);font-family:var(--font-body);font-size:13px;transition:border-color .2s;}
+.ariza-btn:hover{border-color:var(--blue);}
+.ariza-ikon{font-size:20px;flex-shrink:0;}
+.ariza-text strong{display:block;font-size:14px;margin-bottom:2px;}
+.ariza-text span{color:var(--muted);font-size:12px;}
+.ariza-ok{margin-left:auto;color:var(--muted);}
+footer{text-align:center;padding:24px 16px;font-family:var(--font-mono);font-size:10px;color:var(--muted);border-top:1px solid var(--border);margin-top:10px;}
+</style>
+</head>
+<body>
+<header>
+  <div class="header-top">
+    <div class="bolt">⚡</div>
+    <div class="header-title">
+      <h1>ELEKTRİK PANOSU</h1>
+      <p>PROJE NO: Deneme proje-1 · KURULUM: 12.03.2024</p>
+    </div>
+    <div class="status-dot"></div>
+  </div>
+  <div class="tabs">
+    <button class="tab active-musteri" onclick="sekmeAc('musteri',this)">👤 Müşteri</button>
+    <button class="tab" onclick="sekmeAc('usta',this)">🔧 Usta / Teknisyen</button>
+  </div>
+</header>
+
+<div class="content active" id="tab-musteri">
+  <div class="uyari"><div class="uyari-ikon">⚠️</div><div>Elektrik panosu yalnızca yetkili elektrikçi tarafından açılmalıdır. Sorun yaşarsanız aşağıdaki sigortalara bakınız.</div></div>
+  <div class="card">
+    <div class="card-title"><span>🔌</span> SİGORTALARINIZ</div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:12px;">Bir devrenin detaylarını görmek için sigortaya dokunun.</p>
+    <div class="sigorta-grid">
+    <div class="sigorta normal" onclick="sigortaAc({'no':'S01','ad':'Salon Priz','amper':'16A','faz':'L1','hat':'NYM-J 2.5mm²','durum':'normal','aciklama':'Salon ve koridor priz hattı. Maksimum 3.500W yük kaldırır.'})">
+      <div class="sigorta-no">S01 · L1</div>
+      <div class="sigorta-ad">Salon Priz</div>
+      <div class="sigorta-meta">
+        <span class="sigorta-amper">16A</span>
+        <span class="sigorta-durum durum-normal">Normal</span>
+      </div>
+    </div>
+    <div class="sigorta normal" onclick="sigortaAc({'no':'S02','ad':'Salon Aydınlatma','amper':'10A','faz':'L1','hat':'NYM-J 1.5mm²','durum':'normal','aciklama':'Salon ve giriş tavan aydınlatma hattı.'})">
+      <div class="sigorta-no">S02 · L1</div>
+      <div class="sigorta-ad">Salon Aydınlatma</div>
+      <div class="sigorta-meta">
+        <span class="sigorta-amper">10A</span>
+        <span class="sigorta-durum durum-normal">Normal</span>
+      </div>
+    </div>
+    <div class="sigorta normal" onclick="sigortaAc({'no':'S03','ad':'Mutfak Priz','amper':'20A','faz':'L2','hat':'NYM-J 2.5mm²','durum':'normal','aciklama':'Çift devreli mutfak priz hattı. Tezgah üstü aletler buraya bağlı.'})">
+      <div class="sigorta-no">S03 · L2</div>
+      <div class="sigorta-ad">Mutfak Priz</div>
+      <div class="sigorta-meta">
+        <span class="sigorta-amper">20A</span>
+        <span class="sigorta-durum durum-normal">Normal</span>
+      </div>
+    </div>
+    <div class="sigorta dikkat" onclick="sigortaAc({'no':'S04','ad':'Fırın / Ocak','amper':'16A','faz':'L2','hat':'NYM-J 4mm²','durum':'dikkat','aciklama':'⚠️ Bu hat yalnızca fırın/ocak için ayrılmıştır. Başka cihaz takmayın.'})">
+      <div class="sigorta-no">S04 · L2</div>
+      <div class="sigorta-ad">Fırın / Ocak</div>
+      <div class="sigorta-meta">
+        <span class="sigorta-amper">16A</span>
+        <span class="sigorta-durum durum-dikkat">Dikkat</span>
+      </div>
+    </div>
+    <div class="sigorta normal" onclick="sigortaAc({'no':'S05','ad':'Mutfak Aydınlatma','amper':'10A','faz':'L2','hat':'NYM-J 1.5mm²','durum':'normal','aciklama':'Mutfak tavan ve pim aydınlatma hattı.'})">
+      <div class="sigorta-no">S05 · L2</div>
+      <div class="sigorta-ad">Mutfak Aydınlatma</div>
+      <div class="sigorta-meta">
+        <span class="sigorta-amper">10A</span>
+        <span class="sigorta-durum durum-normal">Normal</span>
+      </div>
+    </div>
+    <div class="sigorta normal" onclick="sigortaAc({'no':'S06','ad':'Yatak Odası Priz','amper':'16A','faz':'L3','hat':'NYM-J 2.5mm²','durum':'normal','aciklama':'Tüm yatak odaları priz hattı. Klima bu hatta değil.'})">
+      <div class="sigorta-no">S06 · L3</div>
+      <div class="sigorta-ad">Yatak Odası Priz</div>
+      <div class="sigorta-meta">
+        <span class="sigorta-amper">16A</span>
+        <span class="sigorta-durum durum-normal">Normal</span>
+      </div>
+    </div>
+    <div class="sigorta normal" onclick="sigortaAc({'no':'S07','ad':'Yatak Odası Aydınlatma','amper':'10A','faz':'L3','hat':'NYM-J 1.5mm²','durum':'normal','aciklama':'Yatak odası tavan aydınlatma hattı.'})">
+      <div class="sigorta-no">S07 · L3</div>
+      <div class="sigorta-ad">Yatak Odası Aydınlatma</div>
+      <div class="sigorta-meta">
+        <span class="sigorta-amper">10A</span>
+        <span class="sigorta-durum durum-normal">Normal</span>
+      </div>
+    </div>
+    <div class="sigorta normal" onclick="sigortaAc({'no':'S08','ad':'Banyo / WC Priz','amper':'16A','faz':'L3','hat':'NYM-J 2.5mm²','durum':'normal','aciklama':'Banyo ve WC prizleri RCD koruması altındadır.'})">
+      <div class="sigorta-no">S08 · L3</div>
+      <div class="sigorta-ad">Banyo / WC Priz</div>
+      <div class="sigorta-meta">
+        <span class="sigorta-amper">16A</span>
+        <span class="sigorta-durum durum-normal">Normal</span>
+      </div>
+    </div>
+    <div class="sigorta normal" onclick="sigortaAc({'no':'S09','ad':'Kombi / Isıtma','amper':'25A','faz':'L1','hat':'NYM-J 4mm²','durum':'normal','aciklama':'Kombi ve yerden ısıtma sistemi hattı.'})">
+      <div class="sigorta-no">S09 · L1</div>
+      <div class="sigorta-ad">Kombi / Isıtma</div>
+      <div class="sigorta-meta">
+        <span class="sigorta-amper">25A</span>
+        <span class="sigorta-durum durum-normal">Normal</span>
+      </div>
+    </div>
+    <div class="sigorta tehlike" onclick="sigortaAc({'no':'S10','ad':'Klima (Split)','amper':'20A','faz':'L2','hat':'NYM-J 4mm²','durum':'tehlike','aciklama':'🔴 Son kontrolde bu hatta topraklama direnci yüksek bulundu. Kontrol gerekli.'})">
+      <div class="sigorta-no">S10 · L2</div>
+      <div class="sigorta-ad">Klima (Split)</div>
+      <div class="sigorta-meta">
+        <span class="sigorta-amper">20A</span>
+        <span class="sigorta-durum durum-tehlike">Kontrol!</span>
+      </div>
+    </div></div>
+  </div>
+  <div class="card">
+    <div class="card-title"><span>💡</span> SIKÇA SORULANLAR</div>
+    
+    <details style="margin-bottom:8px;">
+      <summary style="cursor:pointer;font-weight:600;font-size:14px;padding:4px 0;">Sigorta attı, ne yapmalıyım?</summary>
+      <div class="tip-kutusu">1. Önce o devredeki yükü azaltın (fazla alet varsa fişini çekin).<br>2. Pano kapağını açmadan sigorta kolunu YUKARI kaldırın.<br>3. Sorun devam ediyorsa elektrikçinizi arayın.</div>
+    </details>
+    <details style="margin-bottom:8px;">
+      <summary style="cursor:pointer;font-weight:600;font-size:14px;padding:4px 0;">Kaçak akım (RCD) ne zaman atar?</summary>
+      <div class="tip-kutusu">Su ile temas, hasar görmüş kablo veya cihaz arızasında atar. Kırmızı TEST düğmesine basarak her ay kontrol edebilirsiniz.</div>
+    </details>
+    <details style="margin-bottom:8px;">
+      <summary style="cursor:pointer;font-weight:600;font-size:14px;padding:4px 0;">Komşuda ışık var, bizde yok — sorun nerede?</summary>
+      <div class="tip-kutusu">Sayaç öncesi sorun olabilir. Önce sayacı kontrol edin; sayaç yanıyorsa pano içindeki ana sigortaya bakın. İkisi de tamansa dağıtım şirketini arayın.</div>
+    </details>
+  </div>
+  <div class="card">
+    <div class="card-title"><span>📞</span> İLETİŞİM</div>
+    <div class="bilgi-satir"><span class="bilgi-label">Elektrikçi</span><span class="bilgi-val">Ahmet Usta</span></div>
+    <div class="bilgi-satir"><span class="bilgi-label">Telefon</span><a href="tel:05321234567" style="color:var(--blue);font-family:var(--font-mono);font-weight:600;text-decoration:none;">0532 123 45 67</a></div>
+    <div class="bilgi-satir"><span class="bilgi-label">Acil (EDAŞ)</span><a href="tel:186" style="color:var(--red);font-family:var(--font-mono);font-weight:600;text-decoration:none;">186</a></div>
+  </div>
+</div>
+
+<div class="content" id="tab-usta">
+  <div class="card">
+    <div class="card-title"><span>📋</span> PROJE ÖZETİ</div>
+    <div class="bilgi-satir"><span class="bilgi-label">Adres</span><span class="bilgi-val" style="font-size:12px;text-align:right;">İstanbul, Kadıköy — Moda Mah. No:12</span></div>
+    <div class="bilgi-satir"><span class="bilgi-label">Faz</span><span class="bilgi-val">3 Faz / 400V</span></div>
+    <div class="bilgi-satir"><span class="bilgi-label">Ana Sigorta</span><span class="bilgi-val" style="color:var(--yellow)">63A — 3P</span></div>
+    <div class="bilgi-satir"><span class="bilgi-label">Kaçak Akım</span><span class="bilgi-val">30mA RCD × 2</span></div>
+    <div class="bilgi-satir"><span class="bilgi-label">Kablo Kesiti</span><span class="bilgi-val">2.5mm² NYM-J</span></div>
+    <div class="bilgi-satir"><span class="bilgi-label">Topraklama</span><span class="bilgi-val" style="color:var(--green)">✔ TT Sistemi</span></div>
+  </div>
+  <div class="card">
+    <div class="card-title"><span>⚡</span> DEVRE HARİTASI</div>
+    <div class="devre"><span class="hat-num">S01</span> <span class="hat-faz">L1─</span>─── <span class="hat-sig">[16A]</span> ──── Salon Priz<br><span class="hat-num">S02</span> <span class="hat-faz">L1─</span>─── <span class="hat-sig">[10A]</span> ──── Salon Aydınlatma<br><span class="hat-num">S03</span> <span class="hat-faz">L2─</span>─── <span class="hat-sig">[20A]</span> ──── Mutfak Priz<br><span class="hat-num">S04</span> <span class="hat-faz">L2─</span>─── <span class="hat-sig">[16A]</span> ──── Fırın / Ocak<br><span class="hat-num">S05</span> <span class="hat-faz">L2─</span>─── <span class="hat-sig">[10A]</span> ──── Mutfak Aydınlatma<br><span class="hat-num">S06</span> <span class="hat-faz">L3─</span>─── <span class="hat-sig">[16A]</span> ──── Yatak Odası Priz<br><span class="hat-num">S07</span> <span class="hat-faz">L3─</span>─── <span class="hat-sig">[10A]</span> ──── Yatak Odası Aydınlatma<br><span class="hat-num">S08</span> <span class="hat-faz">L3─</span>─── <span class="hat-sig">[16A]</span> ──── Banyo / WC Priz<br><span class="hat-num">S09</span> <span class="hat-faz">L1─</span>─── <span class="hat-sig">[25A]</span> ──── Kombi / Isıtma<br><span class="hat-num">S10</span> <span class="hat-faz">L2─</span>─── <span class="hat-sig">[20A]</span> ──── Klima (Split)</div>
+  </div>
+  <div class="card">
+    <div class="card-title"><span>🔍</span> ARIZAYA GÖRE HAT BUL</div>
+    
+    <button class="ariza-btn" onclick="arizaGoster(0)">
+      <span class="ariza-ikon">🔌</span>
+      <span class="ariza-text"><strong>Prizler çalışmıyor</strong><span>Hangi hatta bakmalısın?</span></span>
+      <span class="ariza-ok">›</span>
+    </button>
+    <button class="ariza-btn" onclick="arizaGoster(1)">
+      <span class="ariza-ikon">💡</span>
+      <span class="ariza-text"><strong>Işıklar gitmiş</strong><span>Aydınlatma hatları</span></span>
+      <span class="ariza-ok">›</span>
+    </button>
+    <button class="ariza-btn" onclick="arizaGoster(2)">
+      <span class="ariza-ikon">🍳</span>
+      <span class="ariza-text"><strong>Mutfak çalışmıyor</strong><span>Fırın, ocak, priz</span></span>
+      <span class="ariza-ok">›</span>
+    </button>
+    <button class="ariza-btn" onclick="arizaGoster(3)">
+      <span class="ariza-ikon">❄️</span>
+      <span class="ariza-text"><strong>Klima / ısıtma sorunu</strong><span>Yüksek amper hatları</span></span>
+      <span class="ariza-ok">›</span>
+    </button>
+  </div>
+  <div class="card">
+    <div class="card-title"><span>✅</span> BAKIM KONTROL LİSTESİ</div>
+    
+    <div class="checklist-item" onclick="toggleCheck(this)">
+      <div class="check-box">✓</div>
+      <div class="check-text">Ana sigorta gözle kontrol edildi</div>
+    </div>
+    <div class="checklist-item" onclick="toggleCheck(this)">
+      <div class="check-box">✓</div>
+      <div class="check-text">RCD test düğmesi test edildi (30mA)</div>
+    </div>
+    <div class="checklist-item" onclick="toggleCheck(this)">
+      <div class="check-box">✓</div>
+      <div class="check-text">Topraklama bağlantısı kontrol edildi</div>
+    </div>
+    <div class="checklist-item" onclick="toggleCheck(this)">
+      <div class="check-box">✓</div>
+      <div class="check-text">Kablo bağlantı noktaları sıkıştırıldı</div>
+    </div>
+    <div class="checklist-item" onclick="toggleCheck(this)">
+      <div class="check-box">✓</div>
+      <div class="check-text">Faz dağılımı ölçüldü (L1/L2/L3 dengeli)</div>
+    </div>
+    <div class="checklist-item" onclick="toggleCheck(this)">
+      <div class="check-box">✓</div>
+      <div class="check-text">Pano içi temizlik yapıldı</div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div style="font-family:var(--font-mono);font-size:10px;color:var(--muted);margin-bottom:4px;" id="modal-no"></div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;" id="modal-baslik"></div>
+      </div>
+      <button class="modal-close" onclick="document.getElementById('modal').classList.remove('open')">✕</button>
+    </div>
+    <div id="modal-icerik"></div>
+  </div>
+</div>
+
+<footer>⚡ Deneme proje-1 · Ahmet Usta · ahmetusta@elektrik.tr<br>Bu sayfa yalnızca bu projeye aittir · v1.0</footer>
+
+<script>
+
+    const sigortalar = [{"no":"S01","ad":"Salon Priz","amper":"16A","faz":"L1","hat":"NYM-J 2.5mm²","durum":"normal","aciklama":"Salon ve koridor priz hattı. Maksimum 3.500W yük kaldırır."},{"no":"S02","ad":"Salon Aydınlatma","amper":"10A","faz":"L1","hat":"NYM-J 1.5mm²","durum":"normal","aciklama":"Salon ve giriş tavan aydınlatma hattı."},{"no":"S03","ad":"Mutfak Priz","amper":"20A","faz":"L2","hat":"NYM-J 2.5mm²","durum":"normal","aciklama":"Çift devreli mutfak priz hattı. Tezgah üstü aletler buraya bağlı."},{"no":"S04","ad":"Fırın / Ocak","amper":"16A","faz":"L2","hat":"NYM-J 4mm²","durum":"dikkat","aciklama":"⚠️ Bu hat yalnızca fırın/ocak için ayrılmıştır. Başka cihaz takmayın."},{"no":"S05","ad":"Mutfak Aydınlatma","amper":"10A","faz":"L2","hat":"NYM-J 1.5mm²","durum":"normal","aciklama":"Mutfak tavan ve pim aydınlatma hattı."},{"no":"S06","ad":"Yatak Odası Priz","amper":"16A","faz":"L3","hat":"NYM-J 2.5mm²","durum":"normal","aciklama":"Tüm yatak odaları priz hattı. Klima bu hatta değil."},{"no":"S07","ad":"Yatak Odası Aydınlatma","amper":"10A","faz":"L3","hat":"NYM-J 1.5mm²","durum":"normal","aciklama":"Yatak odası tavan aydınlatma hattı."},{"no":"S08","ad":"Banyo / WC Priz","amper":"16A","faz":"L3","hat":"NYM-J 2.5mm²","durum":"normal","aciklama":"Banyo ve WC prizleri RCD koruması altındadır."},{"no":"S09","ad":"Kombi / Isıtma","amper":"25A","faz":"L1","hat":"NYM-J 4mm²","durum":"normal","aciklama":"Kombi ve yerden ısıtma sistemi hattı."},{"no":"S10","ad":"Klima (Split)","amper":"20A","faz":"L2","hat":"NYM-J 4mm²","durum":"tehlike","aciklama":"🔴 Son kontrolde bu hatta topraklama direnci yüksek bulundu. Kontrol gerekli."}];
+    const arizalar = [{"id":"priz","ikon":"🔌","baslik":"Prizler çalışmıyor","ozet":"Hangi hatta bakmalısın?","icerik":"Önce S01 (Salon) ve S06 (Yatak) sigortalarını kontrol edin. Banyo için S08'e bakın. S10 klima sigortasına priz bağlı değildir. Sigortalar tamam ama priz çalışmıyorsa o noktanın kablo bağlantısını yerinde ölçün."},{"id":"aydinlatma","ikon":"💡","baslik":"Işıklar gitmiş","ozet":"Aydınlatma hatları","icerik":"Salon için S02, Mutfak için S05, Yatak odaları için S07'yi kontrol edin. Tüm devreler L1/L2/L3'e dağıtılmıştır. Tek fazda sorun varsa ilk olarak o fazın çıkışını ölçün."},{"id":"mutfak","ikon":"🍳","baslik":"Mutfak çalışmıyor","ozet":"Fırın, ocak, priz","icerik":"Mutfakta 3 ayrı hat var: S03 (priz), S04 (fırın/ocak), S05 (aydınlatma). Fırın atmışsa S04'ü açın; bu hat sadece fırına ayrılmıştır, üzerine ek yük almaz."},{"id":"klima","ikon":"❄️","baslik":"Klima / ısıtma sorunu","ozet":"Yüksek amper hatları","icerik":"⚠️ S10 (Klima) hattında topraklama direnci yüksek bulunmuştu. Bu hattı ölçmeden açmayın. S09 kombi hattı ayrı devredir; kombi sorununda önce cihazın arızasını kontrol edin."}];
+  
+function sigortaAc(s){
+  document.getElementById('modal-no').textContent=s.no+' · '+s.faz+' · '+s.hat;
+  document.getElementById('modal-baslik').textContent=s.ad;
+  document.getElementById('modal-icerik').innerHTML='<div class="tip-kutusu">'+s.aciklama+'</div><div class="tip-kutusu" style="margin-top:8px;border-color:var(--blue);background:rgba(74,158,255,.06);">Bu sigorta <strong>'+s.amper+'</strong> değerindedir. Kapatmak için kolu aşağı, açmak için yukarı itin.</div>';
+  document.getElementById('modal').classList.add('open');
+}
+function arizaGoster(i){
+  const a=arizalar[i];
+  document.getElementById('modal-no').textContent='ARIZA REHBERİ';
+  document.getElementById('modal-baslik').textContent=a.baslik;
+  document.getElementById('modal-icerik').innerHTML='<div class="tip-kutusu">'+a.icerik+'</div>';
+  document.getElementById('modal').classList.add('open');
+}
+function sekmeAc(id,btn){
+  document.querySelectorAll('.content').forEach(c=>c.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>{t.className='tab';});
+  document.getElementById('tab-'+id).classList.add('active');
+  btn.classList.add('active-'+id);
+}
+function toggleCheck(el){el.classList.toggle('checked');}
+</script>
+</body>
+</html>
